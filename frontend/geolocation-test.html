@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geolocation Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🌍 Geolocation Debug Test</h1>
+        <p>This page helps diagnose geolocation issues in your browser.</p>
+
+        <div>
+            <button onclick="checkSupport()">1. Check Browser Support</button>
+            <button onclick="checkPermissions()">2. Check Permissions</button>
+            <button onclick="requestLocation()">3. Request Location</button>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+
+        <div id="status"></div>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            document.getElementById('status').innerHTML = '';
+        }
+
+        function checkSupport() {
+            log('=== Checking Browser Support ===');
+
+            if ('geolocation' in navigator) {
+                log('✅ Geolocation API is supported');
+                showStatus('✅ Your browser supports geolocation', 'success');
+            } else {
+                log('❌ Geolocation API is NOT supported');
+                showStatus('❌ Your browser does not support geolocation', 'error');
+            }
+
+            log(`Browser: ${navigator.userAgent}`);
+            log(`Protocol: ${window.location.protocol}`);
+            log(`Secure Context: ${window.isSecureContext}`);
+
+            if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
+                log('⚠️ WARNING: Geolocation requires HTTPS (except for localhost)');
+            }
+        }
+
+        async function checkPermissions() {
+            log('=== Checking Permissions ===');
+
+            if (!navigator.permissions) {
+                log('⚠️ Permissions API not available in this browser');
+                showStatus('⚠️ Cannot check permissions (API not available)', 'info');
+                return;
+            }
+
+            try {
+                const result = await navigator.permissions.query({ name: 'geolocation' });
+                log(`Permission state: ${result.state}`);
+
+                switch (result.state) {
+                    case 'granted':
+                        showStatus('✅ Location permission is GRANTED', 'success');
+                        break;
+                    case 'denied':
+                        showStatus('❌ Location permission is DENIED - Enable it in browser settings', 'error');
+                        log('To fix: Click the lock/info icon in address bar → Site settings → Location → Allow');
+                        break;
+                    case 'prompt':
+                        showStatus('⚠️ Location permission will be PROMPTED when requested', 'info');
+                        break;
+                }
+
+                result.addEventListener('change', () => {
+                    log(`Permission changed to: ${result.state}`);
+                });
+            } catch (error) {
+                log(`Error checking permissions: ${error.message}`);
+                showStatus('❌ Error checking permissions', 'error');
+            }
+        }
+
+        function requestLocation() {
+            log('=== Requesting Location ===');
+            showStatus('⏳ Requesting your location...', 'info');
+
+            if (!navigator.geolocation) {
+                log('❌ Geolocation not supported');
+                showStatus('❌ Geolocation not supported', 'error');
+                return;
+            }
+
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 30000,
+                maximumAge: 0
+            };
+
+            log(`Options: ${JSON.stringify(options)}`);
+            log('Calling navigator.geolocation.getCurrentPosition()...');
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    log('✅ SUCCESS! Location received');
+                    log(`Latitude: ${position.coords.latitude}`);
+                    log(`Longitude: ${position.coords.longitude}`);
+                    log(`Accuracy: ±${Math.round(position.coords.accuracy)} meters`);
+                    log(`Altitude: ${position.coords.altitude || 'N/A'}`);
+                    log(`Speed: ${position.coords.speed || 'N/A'}`);
+                    log(`Timestamp: ${new Date(position.timestamp).toLocaleString()}`);
+
+                    showStatus(`✅ Location detected: ${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)} (±${Math.round(position.coords.accuracy)}m)`, 'success');
+                },
+                (error) => {
+                    log('❌ ERROR occurred');
+                    log(`Error code: ${error.code}`);
+                    log(`Error message: ${error.message}`);
+
+                    let errorMessage = '';
+                    switch (error.code) {
+                        case 1:
+                            errorMessage = 'PERMISSION_DENIED - User denied location access';
+                            log('Fix: Enable location in browser settings');
+                            break;
+                        case 2:
+                            errorMessage = 'POSITION_UNAVAILABLE - Location information unavailable';
+                            log('Fix: Check if location services are enabled on your device');
+                            break;
+                        case 3:
+                            errorMessage = 'TIMEOUT - Request timed out';
+                            log('Fix: Try again with better signal/connection');
+                            break;
+                        default:
+                            errorMessage = 'UNKNOWN_ERROR';
+                    }
+
+                    showStatus(`❌ ${errorMessage}`, 'error');
+                },
+                options
+            );
+        }
+
+        // Auto-run basic checks on load
+        window.addEventListener('load', () => {
+            log('Page loaded - Ready for testing');
+            log('Click the buttons above to test geolocation functionality');
+        });
+    </script>
+</body>
+
+</html>

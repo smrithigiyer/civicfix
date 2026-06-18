@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - CivicFix</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-page">
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <a href="index.html" class="auth-logo">
+                    <i class="fas fa-city"></i>
+                    <span>CivicFix</span>
+                </a>
+                <h1><i class="fas fa-shield-alt"></i> Admin Login</h1>
+                <p>Secure access for certified administrators</p>
+            </div>
+            
+            <div class="auth-body">
+                <div class="admin-hint">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Admin access requires a valid certification ID. Contact your municipal authority if you need access.</p>
+                </div>
+                
+                <div id="alertContainer"></div>
+                
+                <form id="adminLoginForm">
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <div class="input-group">
+                            <span class="input-prefix">+91</span>
+                            <input type="tel" id="phone" name="phone" placeholder="10-digit mobile number" maxlength="10" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-group password-group">
+                            <span class="input-icon"><i class="fas fa-lock"></i></span>
+                            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block btn-large">
+                        <i class="fas fa-sign-in-alt"></i> Login as Admin
+                    </button>
+                </form>
+            </div>
+            
+            <div class="auth-footer">
+                <p><a href="index.html"><i class="fas fa-arrow-left"></i> Back to Citizen Login</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom JS -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Password toggle
+            const togglePassword = document.getElementById('togglePassword');
+            const password = document.getElementById('password');
+            
+            if (togglePassword) {
+                togglePassword.addEventListener('click', () => {
+                    const type = password.type === 'password' ? 'text' : 'password';
+                    password.type = type;
+                    togglePassword.innerHTML = `<i class="fas fa-eye${type === 'password' ? '' : '-slash'}"></i>`;
+                });
+            }
+            
+            // Admin login form
+            const adminLoginForm = document.getElementById('adminLoginForm');
+            
+            adminLoginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const phone = document.getElementById('phone').value.trim();
+                const passwordValue = password.value;
+                
+                // Validation
+                if (!validatePhone(phone)) {
+                    showAlert('Please enter a valid 10-digit phone number.', 'error');
+                    return;
+                }
+                
+                if (!passwordValue) {
+                    showAlert('Please enter your password.', 'error');
+                    return;
+                }
+                
+                const submitBtn = adminLoginForm.querySelector('button[type="submit"]');
+                showButtonLoading(submitBtn, 'Logging in...');
+                
+                const result = await auth.login(phone, passwordValue);
+                
+                hideButtonLoading(submitBtn);
+                
+                if (result.success) {
+                    // Check if user is admin
+                    if (auth.isAdmin()) {
+                        showAlert('Login successful! Redirecting...', 'success');
+                        setTimeout(() => {
+                            if (window.navigateWithTransition) {
+                                window.navigateWithTransition('admin.html');
+                            } else {
+                                window.location.href = 'admin.html';
+                            }
+                        }, 1000);
+                    } else {
+                        auth.logout();
+                        showAlert('Access denied. This account does not have admin privileges.', 'error');
+                    }
+                } else {
+                    showAlert(result.message, 'error');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

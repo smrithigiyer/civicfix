@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicFix - Smart Public Issue Reporting</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <i class="fas fa-city"></i>
+                <span>CivicFix</span>
+            </a>
+            <div class="nav-menu" id="navMenu">
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="report.html" class="nav-link">Report Issue</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="admin.html" class="nav-link admin-only" style="display: none;">Admin</a>
+            </div>
+            <div class="nav-auth">
+                <span id="userName" class="user-name"></span>
+                <button id="loginBtn" class="btn btn-primary">Login</button>
+                <button id="logoutBtn" class="btn btn-outline" style="display: none;">Logout</button>
+            </div>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Report Civic Issues.<br>Make Your City Better.</h1>
+            <p class="hero-subtitle">
+                CivicFix is a smart platform for reporting public infrastructure issues. 
+                From potholes to streetlights, we ensure your voice reaches the right authorities.
+            </p>
+            <div class="hero-buttons">
+                <a href="report.html" class="btn btn-primary btn-large">
+                    <i class="fas fa-plus-circle"></i> Report an Issue
+                </a>
+                <a href="#how-it-works" class="btn btn-outline btn-large">
+                    <i class="fas fa-info-circle"></i> How It Works
+                </a>
+            </div>
+            <div class="hero-stats" id="heroStats">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalComplaints">-</span>
+                    <span class="stat-label">Issues Reported</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="solvedComplaints">-</span>
+                    <span class="stat-label">Issues Resolved</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="recentComplaints">-</span>
+                    <span class="stat-label">This Week</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Enhanced Visual Section -->
+        <div class="hero-visual">
+            <!-- Process Flow -->
+            <div class="process-flow">
+                <div class="process-step">
+                    <div class="step-icon report-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h4>Report</h4>
+                    <p>You spot an issue</p>
+                </div>
+                
+                <div class="process-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-icon assign-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h4>Assign</h4>
+                    <p>Admin reviews & assigns</p>
+                </div>
+                
+                <div class="process-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-icon resolve-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h4>Resolve</h4>
+                    <p>Team fixes the problem</p>
+                </div>
+                
+                <div class="process-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-icon verify-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4>Verify</h4>
+                    <p>You confirm completion</p>
+                </div>
+            </div>
+            
+            <!-- Issue Types Breakdown -->
+            <div class="issue-types-showcase">
+                <h3>Common Issues We Track</h3>
+                <div class="issue-types-grid">
+                    <div class="issue-type-card pothole">
+                        <div class="issue-icon">
+                            <i class="fas fa-road"></i>
+                        </div>
+                        <span>Potholes</span>
+                    </div>
+                    <div class="issue-type-card drainage">
+                        <div class="issue-icon">
+                            <i class="fas fa-water"></i>
+                        </div>
+                        <span>Drainage</span>
+                    </div>
+                    <div class="issue-type-card streetlight">
+                        <div class="issue-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <span>Streetlights</span>
+                    </div>
+                    <div class="issue-type-card garbage">
+                        <div class="issue-icon">
+                            <i class="fas fa-trash"></i>
+                        </div>
+                        <span>Garbage</span>
+                    </div>
+                    <div class="issue-type-card road-damage">
+                        <div class="issue-icon">
+                            <i class="fas fa-car-crash"></i>
+                        </div>
+                        <span>Road Damage</span>
+                    </div>
+                    <div class="issue-type-card other">
+                        <div class="issue-icon">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </div>
+                        <span>Other</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Impact Metrics Boxes -->
+            <div class="impact-metrics">
+                <div class="metric-box">
+                    <div class="metric-number" id="avgResolutionTime">-</div>
+                    <div class="metric-label">Avg Resolution Time</div>
+                    <div class="metric-unit">days</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-number" id="activeAdmins">-</div>
+                    <div class="metric-label">Active Administrators</div>
+                    <div class="metric-unit">managing</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-number" id="resolutionRate">-</div>
+                    <div class="metric-label">Success Rate</div>
+                    <div class="metric-unit">%</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose CivicFix?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h3>Smart Location</h3>
+                    <p>Auto-detect your location or pin it manually on the map. Our system uses precise coordinates for accurate reporting.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Priority Scoring</h3>
+                    <p>Issues near schools, hospitals, and emergency services get automatic priority based on location and severity.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Track Progress</h3>
+                    <p>Monitor your complaints in real-time. Get updates when issues are acknowledged, in progress, or resolved.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h3>Photo Evidence</h3>
+                    <p>Upload multiple photos to support your complaint. Visual evidence helps authorities understand the issue better.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Secure & Private</h3>
+                    <p>Your data is protected with industry-standard encryption. Phone-based authentication keeps it simple and secure.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Friendly</h3>
+                    <p>Report issues on the go. Our responsive design works perfectly on smartphones, tablets, and desktops.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Report an Issue</h3>
+                        <p>Take a photo, describe the problem, and mark the location on the map.</p>
+                    </div>
+                </div>
+                <div class="step-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Priority Assessment</h3>
+                        <p>Our system calculates priority based on location proximity to critical infrastructure.</p>
+                    </div>
+                </div>
+                <div class="step-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Authority Action</h3>
+                        <p>Municipal authorities review and assign the issue to relevant departments.</p>
+                    </div>
+                </div>
+                <div class="step-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Issue Resolved</h3>
+                        <p>Track progress in real-time. Receive notification when the issue is fixed.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust & Impact Section -->
+    <section class="trust-impact">
+        <div class="container">
+            <div class="trust-grid">
+                <div class="trust-card">
+                    <div class="trust-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Community Driven</h3>
+                    <p>Thousands of citizens actively reporting issues and improving our cities together.</p>
+                </div>
+                <div class="trust-card">
+                    <div class="trust-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3>Data Secure</h3>
+                    <p>End-to-end encryption protects your personal information and complaint details.</p>
+                </div>
+                <div class="trust-card">
+                    <div class="trust-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3>Verified Admins</h3>
+                    <p>Only certified municipal officials can manage and resolve reported issues.</p>
+                </div>
+                <div class="trust-card">
+                    <div class="trust-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>Full Transparency</h3>
+                    <p>Track your issue from report to resolution with real-time status updates.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Make a Difference?</h2>
+                <p>Report your first civic issue today and help improve your city's infrastructure</p>
+                <div class="cta-buttons">
+                    <a href="report.html" class="btn btn-primary btn-large">
+                        <i class="fas fa-flag"></i> Report an Issue Now
+                    </a>
+                    <a href="dashboard.html" class="btn btn-outline btn-large">
+                        <i class="fas fa-chart-bar"></i> View Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Complaint Types Section -->
+    <section class="complaint-types">
+        <div class="container">
+            <h2 class="section-title">Reportable Issues</h2>
+            <div class="types-grid">
+                <div class="type-card">
+                    <i class="fas fa-road"></i>
+                    <span>Potholes</span>
+                </div>
+                <div class="type-card">
+                    <i class="fas fa-water"></i>
+                    <span>Drainage</span>
+                </div>
+                <div class="type-card">
+                    <i class="fas fa-car-crash"></i>
+                    <span>Road Damage</span>
+                </div>
+                <div class="type-card">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Streetlights</span>
+                </div>
+                <div class="type-card">
+                    <i class="fas fa-trash"></i>
+                    <span>Garbage</span>
+                </div>
+                <div class="type-card">
+                    <i class="fas fa-ellipsis-h"></i>
+                    <span>Other Issues</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="index.html" class="footer-logo">
+                        <i class="fas fa-city"></i>
+                        <span>CivicFix</span>
+                    </a>
+                    <p>Making cities better, one report at a time.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Home</a>
+                    <a href="report.html">Report Issue</a>
+                    <a href="dashboard.html">Dashboard</a>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-envelope"></i></p> <!-- Email address can be added here in the future -->
+                    <p><i class="fas fa-phone"></i> </p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 CivicFix. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+                <button class="modal-close" id="closeLoginModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginPhone">Phone Number</label>
+                        <div class="input-group">
+                            <span class="input-prefix">+91</span>
+                            <input type="tel" id="loginPhone" name="phone" 
+                                   placeholder="10-digit mobile number" maxlength="10" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <div class="input-group password-group">
+                            <input type="password" id="loginPassword" name="password" 
+                                   placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-error" id="loginError"></div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </form>
+                <div class="modal-footer-text">
+                    <p>Don't have an account? <a href="register.html">Register here</a></p>
+                    <p class="admin-login-link"><a href="admin-login.html">Admin Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet Map Library (Open Source - No API Key Needed) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.min.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/home.js"></script>
+</body>
+</html>

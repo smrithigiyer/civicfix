@@ -1,0 +1,12 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd 'C:\\\\Users\\\\NAVANEETH\\\\Downloads\\\\Kimi_Agent_CivicFix Issue Reporting Platform\\\\civicfix'; python run\\.py$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^cd 'C:\\\\Users\\\\NAVANEETH\\\\Downloads\\\\Kimi_Agent_CivicFix Issue Reporting Platform\\\\civicfix' ; python -c \"from backend\\.database import get_ist_now; print\\('Current IST Time:', get_ist_now\\(\\)\\.strftime\\('%Y-%m-%d %H:%M:%S IST'\\)\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

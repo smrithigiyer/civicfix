@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Issue - CivicFix</title>
+
+    <!-- Leaflet Map Library (Free, No API Key Required!) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/report.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <i class="fas fa-city"></i>
+                <span>CivicFix</span>
+            </a>
+            <div class="nav-menu" id="navMenu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="report.html" class="nav-link active">Report Issue</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="admin.html" class="nav-link admin-only" style="display: none;">Admin</a>
+            </div>
+            <div class="nav-auth">
+                <span id="userName" class="user-name"></span>
+                <button id="loginBtn" class="btn btn-primary">Login</button>
+                <button id="logoutBtn" class="btn btn-outline" style="display: none;">Logout</button>
+            </div>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="report-page">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-plus-circle"></i> Report a Civic Issue</h1>
+                <p>Help us improve your city by reporting public infrastructure problems</p>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <div class="report-grid">
+                <!-- Form Section -->
+                <div class="report-form-section">
+                    <form id="reportForm" class="report-form">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-info-circle"></i> Issue Details</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="complaintType">Issue Type <span class="required">*</span></label>
+                                    <select id="complaintType" name="complaint_type" required>
+                                        <option value="">Select issue type</option>
+                                        <option value="pothole">Pothole</option>
+                                        <option value="drainage">Drainage Problem</option>
+                                        <option value="road_damage">Road Damage</option>
+                                        <option value="streetlight">Streetlight Issue</option>
+                                        <option value="garbage">Garbage Accumulation</option>
+                                        <option value="other">Other Issue</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="description">Description <span class="required">*</span></label>
+                                    <textarea id="description" name="description" rows="5"
+                                        placeholder="Describe the issue in detail. Include any relevant information that might help authorities understand and address the problem."
+                                        required minlength="10"></textarea>
+                                    <span class="form-hint">Minimum 10 characters</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-camera"></i> Photos</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="image-upload">
+                                    <div class="upload-zone" id="uploadZone">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Drag & drop images here or click to browse</p>
+                                        <span class="upload-hint">Max 5 images, 5MB each (JPG, PNG, GIF)</span>
+                                        <input type="file" id="imageInput" accept="image/*" multiple
+                                            style="display: none;">
+                                    </div>
+                                    <div class="image-previews" id="imagePreviews"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-map-marker-alt"></i> Location</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="location-inputs">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Latitude</label>
+                                            <input type="number" id="latitude" name="lat" step="any" readonly required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Longitude</label>
+                                            <input type="number" id="longitude" name="lng" step="any" readonly required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Place</label>
+                                    <input type="text" id="placeName" name="place_name" readonly
+                                        placeholder="Place name will appear here after location detection">
+                                    <input type="hidden" id="address" name="address">
+                                </div>
+
+                                <div class="location-actions">
+                                    <button type="button" class="btn btn-secondary" id="detectLocation">
+                                        <i class="fas fa-location-arrow"></i> Detect My Location
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" id="recenterMap"
+                                        style="display: none;">
+                                        <i class="fas fa-crosshairs"></i> Recenter Map
+                                    </button>
+                                    <span class="location-status" id="locationStatus"></span>
+                                </div>
+
+                                <div class="map-container">
+                                    <div id="map"></div>
+                                    <div class="map-instruction">
+                                        <i class="fas fa-hand-pointer"></i> Click on the map or drag the marker to set
+                                        exact location
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-large" id="submitBtn">
+                                <i class="fas fa-paper-plane"></i> Submit Complaint
+                            </button>
+                            <a href="dashboard.html" class="btn btn-outline btn-large">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="report-sidebar">
+                    <div class="card info-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-lightbulb"></i> Reporting Tips</h3>
+                        </div>
+                        <div class="card-body">
+                            <ul class="tips-list">
+                                <li><i class="fas fa-check"></i> Be specific about the location</li>
+                                <li><i class="fas fa-check"></i> Include clear photos</li>
+                                <li><i class="fas fa-check"></i> Describe the issue clearly</li>
+                                <li><i class="fas fa-check"></i> Mention any safety concerns</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card info-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-clock"></i> What Happens Next?</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="process-steps">
+                                <div class="process-step">
+                                    <div class="step-icon">1</div>
+                                    <div class="step-text">
+                                        <strong>Priority Assessment</strong>
+                                        <p>Our system calculates priority based on location</p>
+                                    </div>
+                                </div>
+                                <div class="process-step">
+                                    <div class="step-icon">2</div>
+                                    <div class="step-text">
+                                        <strong>Authority Review</strong>
+                                        <p>Municipal authorities review your complaint</p>
+                                    </div>
+                                </div>
+                                <div class="process-step">
+                                    <div class="step-icon">3</div>
+                                    <div class="step-text">
+                                        <strong>Resolution</strong>
+                                        <p>Track progress in your dashboard</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 CivicFix. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-sign-in-alt"></i> Login Required</h2>
+                <button class="modal-close" id="closeLoginModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Please login to submit a complaint.</p>
+                <div class="modal-actions">
+                    <a href="index.html" class="btn btn-primary btn-block">Go to Login</a>
+                    <a href="register.html" class="btn btn-outline btn-block">Create Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet is loaded via CDN in the HTML head -->
+    <!-- Location detection uses browser's native Geolocation API -->
+
+    <!-- Custom JS -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/geolocation.js"></script>
+    <script src="js/report.js"></script>
+</body>
+
+</html>

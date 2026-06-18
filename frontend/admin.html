@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CivicFix</title>
+    
+    <!-- Leaflet Map Library (Open Source - No API Key Needed) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.min.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-admin">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <i class="fas fa-city"></i>
+                <span>CivicFix <small>Admin</small></span>
+            </a>
+            <div class="nav-menu" id="navMenu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="admin.html" class="nav-link active">Dashboard</a>
+            </div>
+            <div class="nav-auth">
+                <span id="userName" class="user-name"></span>
+                <button id="logoutBtn" class="btn btn-outline">Logout</button>
+            </div>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="admin-page">
+        <div class="container">
+            <div class="page-header">
+                <div class="header-content">
+                    <h1><i class="fas fa-shield-alt"></i> Admin Dashboard</h1>
+                    <p>Manage and resolve civic complaints</p>
+                </div>
+            </div>
+            
+            <div id="alertContainer"></div>
+            
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon total">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="totalCount">-</span>
+                        <span class="stat-label">Total Complaints</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon high">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="highCount">-</span>
+                        <span class="stat-label">High Priority</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon pending">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="pendingCount">-</span>
+                        <span class="stat-label">Pending</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon solved">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="solvedCount">-</span>
+                        <span class="stat-label">Resolved</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label>Status:</label>
+                    <select id="filterStatus">
+                        <option value="">All Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Solved">Solved</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Priority:</label>
+                    <select id="filterPriority">
+                        <option value="">All Priority</option>
+                        <option value="HIGH">High</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="NORMAL">Normal</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Type:</label>
+                    <select id="filterType">
+                        <option value="">All Types</option>
+                        <option value="pothole">Pothole</option>
+                        <option value="drainage">Drainage</option>
+                        <option value="road_damage">Road Damage</option>
+                        <option value="streetlight">Streetlight</option>
+                        <option value="garbage">Garbage</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <button class="btn btn-outline btn-small" id="clearFilters">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+                <button class="btn btn-primary btn-small" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+            
+            <!-- Complaints Table -->
+            <div class="complaints-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-list"></i> All Complaints</h2>
+                    <span class="complaints-count" id="complaintsCount"></span>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="complaints-table" id="complaintsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Citizen</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Submitted</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="complaintsTableBody">
+                            <!-- Complaints loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <i class="fas fa-clipboard-check"></i>
+                    <h3>No complaints found</h3>
+                    <p>No complaints match your current filters.</p>
+                </div>
+                
+                <div id="loadingState" class="loading-state">
+                    <div class="spinner-large"></div>
+                    <p>Loading complaints...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer footer-admin">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 CivicFix Admin. Authorized personnel only.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Update Status Modal -->
+    <div class="modal" id="statusModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Update Status</h2>
+                <button class="modal-close" id="closeStatusModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="statusForm">
+                    <input type="hidden" id="statusComplaintId">
+                    <div class="form-group">
+                        <label for="newStatus">New Status</label>
+                        <select id="newStatus" required>
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Solved">Solved</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminRemarks">Admin Remarks</label>
+                        <textarea id="adminRemarks" rows="3" placeholder="Add remarks about this update..."></textarea>
+                    </div>
+                    <div class="form-group" id="resolutionProofGroup" style="display: none;">
+                        <label for="resolutionProof">Resolution Proof (Photo)</label>
+                        <input type="file" id="resolutionProof" accept="image/*">
+                        <span class="form-hint">Upload photo showing resolved issue</span>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-save"></i> Update Status
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Override Priority Modal -->
+    <div class="modal" id="priorityModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-flag"></i> Override Priority</h2>
+                <button class="modal-close" id="closePriorityModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Priority override will be logged. A reason is required.</span>
+                </div>
+                <form id="priorityForm">
+                    <input type="hidden" id="priorityComplaintId">
+                    <div class="form-group">
+                        <label for="newPriority">New Priority</label>
+                        <select id="newPriority" required>
+                            <option value="HIGH">High</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="NORMAL">Normal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="priorityReason">Reason for Override <span class="required">*</span></label>
+                        <textarea id="priorityReason" rows="4" 
+                                  placeholder="Explain why you are changing the priority..."
+                                  required minlength="10"></textarea>
+                        <span class="form-hint">Minimum 10 characters required</span>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-save"></i> Override Priority
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Detail Modal -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Complaint Details</h2>
+                <button class="modal-close" id="closeDetailModal">&times;</button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="js/config.js"></script>
+    <script>
+        // Leaflet is loaded via CDN in the HTML head
+    </script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
